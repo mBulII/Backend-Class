@@ -1,0 +1,27 @@
+{
+  "name": "mybackend",
+  "version": "0.0.1",
+  "description": "backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mBulII/Backend-Class.git"
+  },
+  "keywords": [
+    "backend",
+    "class"
+  ],
+  "author": "bull",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mBulII/Backend-Class/issues"
+  },
+  "homepage": "https://github.com/mBulII/Backend-Class#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
