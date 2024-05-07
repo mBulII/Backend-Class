@@ -6,8 +6,7 @@ class DB {
 
   constructor() {
     this.db = new Sequelize({
-      dialect: "sqlite",
-      storage: "/db/database.sqlite",
+      dialect: "postgres",
     });
     this.loadModels();
   }
