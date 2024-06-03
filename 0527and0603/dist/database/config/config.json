@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "bull",
+    "password": "Kenshi377full",
+    "database": "database_development",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "bull",
+    "password": "Kenshi377full",
+    "database": "database_test",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "bull",
+    "password": "Kenshi377full",
+    "database": "database_production",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  }
+}
