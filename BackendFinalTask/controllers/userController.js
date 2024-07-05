@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createUser,
   getUserById,
+  getAllActiveUsers,
   updateUser,
   deleteUser,
 } from "../services/userService.js";
@@ -16,6 +17,11 @@ const router = Router();
 
 router.post("/create", async (req, res) => {
   const response = await createUser(req);
+  res.status(response.code).json(response.message);
+});
+
+router.get("/getAllUsers", [validateToken], async (req, res) => {
+  const response = await getAllActiveUsers();
   res.status(response.code).json(response.message);
 });
 

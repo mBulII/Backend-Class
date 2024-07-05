@@ -36,6 +36,16 @@ export const createUser = async (req) => {
   };
 };
 
+export const getAllActiveUsers = async () => {
+  return {
+    code: 200,
+    message: await db.User.findAll({
+      where: { status: true },
+      attributes: ["id", "name", "email", "cellphone"],
+    }),
+  };
+};
+
 export const getUserById = async (id) => {
   return {
     code: 200,
