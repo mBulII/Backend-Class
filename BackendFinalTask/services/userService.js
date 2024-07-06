@@ -1,5 +1,6 @@
 import db from "../dist/db/models/index.js";
 import bcrypt from "bcrypt";
+import { Op } from "sequelize";
 
 export const createUser = async (req) => {
   const { name, email, password, password_second, cellphone } = req.body;
@@ -33,6 +34,65 @@ export const createUser = async (req) => {
   return {
     code: 200,
     message: "User created successfully with ID: " + newUser.id,
+  };
+};
+
+export const getFilteredUsers = async (filters) => {
+  const { status, name, loggedInBefore, loggedInAfter } = filters;
+  const whereClause = {};
+
+  if (status) {
+    if (status !== "true" && status !== "false") {
+      return {
+        code: 400,
+        message: "Invalid status value. Only 'true' or 'false' are allowed.",
+      };
+    }
+    whereClause.status = status === "true";
+  }
+
+  if (name) {
+    whereClause.name = {
+      [Op.like]: `%${name}%`,
+    };
+  }
+
+  if (loggedInBefore) {
+    const beforeDate = new Date(loggedInBefore);
+    if (isNaN(beforeDate.getTime())) {
+      return {
+        code: 400,
+        message: "Invalid date format for 'loggedInBefore'",
+      };
+    }
+    whereClause.updatedAt = {
+      ...whereClause.updatedAt,
+      [Op.lte]: beforeDate,
+    };
+  }
+
+  if (loggedInAfter) {
+    const afterDate = new Date(loggedInAfter);
+    if (isNaN(afterDate.getTime())) {
+      return {
+        code: 400,
+        message: "Invalid date format for 'loggedInAfter'",
+      };
+    }
+    whereClause.updatedAt = {
+      ...whereClause.updatedAt,
+      [Op.gte]: afterDate,
+    };
+  }
+
+  const users = await db.User.findAll({
+    where: whereClause,
+    attributes: ["id", "name", "email", "cellphone"],
+  });
+
+  return {
+    code: 200,
+    message: users,
   };
 };
 
