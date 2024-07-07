@@ -2,7 +2,12 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Session extends Model {
-    static associate(models) {}
+    static associate(models) {
+      Session.belongsTo(models.User, {
+        foreignKey: "id_user",
+        as: "user",
+      });
+    }
   }
   Session.init(
     {

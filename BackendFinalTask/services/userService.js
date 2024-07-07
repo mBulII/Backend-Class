@@ -37,6 +37,50 @@ export const createUser = async (req) => {
   };
 };
 
+export const bulkCreateUsers = async (users) => {
+  let createdCount = 0;
+  let failedCount = 0;
+
+  for (const user of users) {
+    const { name, email, password, password_second, cellphone } = user;
+    if (password !== password_second) {
+      failedCount++;
+      continue;
+    }
+
+    const existingUser = await db.User.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      failedCount++;
+      continue;
+    }
+
+    const encryptedPassword = await bcrypt.hash(password, 10);
+
+    try {
+      await db.User.create({
+        name,
+        email,
+        password: encryptedPassword,
+        cellphone,
+        status: true,
+      });
+      createdCount++;
+    } catch (error) {
+      failedCount++;
+    }
+  }
+
+  return {
+    code: 200,
+    message: {
+      created: createdCount,
+      failed: failedCount,
+    },
+  };
+};
+
 export const getFilteredUsers = async (filters) => {
   const { status, name, loggedInBefore, loggedInAfter } = filters;
   const whereClause = {};
@@ -57,6 +101,7 @@ export const getFilteredUsers = async (filters) => {
     };
   }
 
+  const sessionWhereClause = {};
   if (loggedInBefore) {
     const beforeDate = new Date(loggedInBefore);
     if (isNaN(beforeDate.getTime())) {
@@ -65,8 +110,8 @@ export const getFilteredUsers = async (filters) => {
         message: "Invalid date format for 'loggedInBefore'",
       };
     }
-    whereClause.updatedAt = {
-      ...whereClause.updatedAt,
+    sessionWhereClause.createdAt = {
+      ...sessionWhereClause.createdAt,
       [Op.lte]: beforeDate,
     };
   }
@@ -79,20 +124,35 @@ export const getFilteredUsers = async (filters) => {
         message: "Invalid date format for 'loggedInAfter'",
       };
     }
-    whereClause.updatedAt = {
-      ...whereClause.updatedAt,
+    sessionWhereClause.createdAt = {
+      ...sessionWhereClause.createdAt,
       [Op.gte]: afterDate,
     };
+  }
+
+  const sessionInclude = {
+    model: db.Session,
+    as: "sessions",
+    required: false,
+    attributes: ["createdAt"],
+  };
+  if (loggedInBefore || loggedInAfter) {
+    sessionInclude.where = sessionWhereClause;
   }
 
   const users = await db.User.findAll({
     where: whereClause,
     attributes: ["id", "name", "email", "cellphone"],
+    include: [sessionInclude],
   });
+  let filteredUsers = users;
+  if (loggedInBefore || loggedInAfter) {
+    filteredUsers = users.filter((user) => user.sessions.length > 0);
+  }
 
   return {
     code: 200,
-    message: users,
+    message: filteredUsers,
   };
 };
 

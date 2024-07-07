@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createUser,
+  bulkCreateUsers,
   getUserById,
   getAllActiveUsers,
   getFilteredUsers,
@@ -18,6 +19,11 @@ const router = Router();
 
 router.post("/create", async (req, res) => {
   const response = await createUser(req);
+  res.status(response.code).json(response.message);
+});
+
+router.post("/bulkCreate", async (req, res) => {
+  const response = await bulkCreateUsers(req.body.users);
   res.status(response.code).json(response.message);
 });
 
